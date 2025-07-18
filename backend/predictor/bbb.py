@@ -1,27 +1,15 @@
-# Lire le contenu du fichier
-with open('output.json', 'r') as file:
-    lines = file.readlines()
+import pandas as pd
 
-# Fusionner les lignes en une seule chaîne
-raw_data = ''.join(lines)
+# Charger le fichier Excel
+df = pd.read_excel("WQD.xlsx")  # Remplace par ton nom de fichier si différent
 
-# Séparer chaque objet JSON (en se basant sur les accolades fermantes)
-raw_objects = raw_data.split('}\n')
+# Supprimer la dernière colonne (par position)
+df = df.iloc[:, :-1]
 
-# Nettoyer et ajouter les virgules
-formatted_objects = []
-for obj in raw_objects:
-    obj = obj.strip()
-    if obj:
-        if not obj.endswith('}'):
-            obj += '}'
-        formatted_objects.append(obj)
+# OU : Supprimer par nom si tu veux t'assurer que c'est bien "Water Quality"
+# df = df.drop(columns=["Water Quality"], errors='ignore')
 
-# Ajouter les virgules sauf pour le dernier
-json_array = '[\n' + ',\n'.join(formatted_objects) + '\n]'
+# Sauvegarder en JSON
+df.to_json("data.json", orient="records", indent=4)
 
-# Écrire dans un nouveau fichier JSON valide
-with open('data_formatted.json', 'w') as f:
-    f.write(json_array)
-
-print("✅ Fichier JSON bien formaté enregistré dans 'data_formatted.json'")
+print("✅ Fichier JSON créé avec succès sans la dernière colonne.")

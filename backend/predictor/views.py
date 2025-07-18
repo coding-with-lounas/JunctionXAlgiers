@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import pickle
 from django.http import JsonResponse
 import numpy as np
@@ -7,6 +8,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
+from django.db.models import Count
+from .models import BassinData
+
+
+
+
 
 # Get current directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,7 +51,43 @@ class PredictView(APIView):
 
 
 def get_data(request):
-    file_path = os.path.join(settings.BASE_DIR, 'predict', 'data.json')
+    file_path = os.path.join(settings.BASE_DIR, 'predictor', 'data.json')
     with open(file_path, 'r') as f:
         data = json.load(f)
     return JsonResponse(data, safe=False)
+
+
+# Load JSON file once when server starts (for performance)
+with open(os.path.join(settings.BASE_DIR, 'predictor', 'data.json')) as f:
+    SENSOR_DATA = json.load(f)
+
+def count_bassins_by_id():
+    counts = BassinData.objects.values('bassin_id').annotate(total=Count('id'))
+    return counts
+def get_random_sensor_data(request):
+    # Pick one random object
+    random_entry = random.choice(SENSOR_DATA)
+    return JsonResponse(random_entry)
+
+
+from rest_framework import viewsets
+from .models import User, BassinData, AlertHistory, Notification
+from .serializers import UserSerializer, BassinDataSerializer, AlertHistorySerializer, NotificationSerializer
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class BassinDataViewSet(viewsets.ModelViewSet):
+    queryset = BassinData.objects.all()
+    serializer_class = BassinDataSerializer
+
+class AlertHistoryViewSet(viewsets.ModelViewSet):
+    queryset = AlertHistory.objects.all()
+    serializer_class = AlertHistorySerializer
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+
