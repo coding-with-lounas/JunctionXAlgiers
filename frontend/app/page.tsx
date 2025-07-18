@@ -3,6 +3,8 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import axios from 'axios';
+
 import { useRouter } from "next/navigation"
 import {
   Fish,
@@ -48,7 +50,7 @@ const initialBassins = [
     id: "bassin-1",
     name: "Bassin Alpha",
     location: "North Section",
-    fishType: "Salmon",
+    fishType: "Tilapia",
     capacity: "50,000L",
     status: "excellent",
     temperature: 18.5,
