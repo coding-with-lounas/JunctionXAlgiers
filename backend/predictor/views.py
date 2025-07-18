@@ -1,9 +1,12 @@
+import json
 import os
 import pickle
+from django.http import JsonResponse
 import numpy as np
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.conf import settings
 
 # Get current directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,3 +41,10 @@ class PredictView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def get_data(request):
+    file_path = os.path.join(settings.BASE_DIR, 'predict', 'data.json')
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return JsonResponse(data, safe=False)
